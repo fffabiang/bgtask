@@ -13,6 +13,7 @@ class ABGTaskGameMode : public AGameModeBase
 
 public:
 	ABGTaskGameMode();
+
 };
 
 
