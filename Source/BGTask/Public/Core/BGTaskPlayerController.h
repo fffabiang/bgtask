@@ -55,5 +55,7 @@ private:
 	void OnJumpTriggered();
 	void OnJumpCanceled();
 
+	void OnSteerReleased();
+
 	
 };

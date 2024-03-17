@@ -27,6 +27,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float SteerSpeed = 100.0f;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float TickRotationSpeed = 10.0f;
+
 	// Components
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
@@ -38,6 +41,8 @@ public:
 
 	void Steer(const FInputActionValue& Value);
 
+	void StopSteer();
+
 	void Jump();
 
 	void StopJumping();
@@ -45,7 +50,9 @@ public:
 private:
 	bool ShouldMove();
 	bool ShouldSteer();
-
+	
+	bool bTickRotate;
+	float DirectionMultiplier = 1.0f;
 
 
 protected:

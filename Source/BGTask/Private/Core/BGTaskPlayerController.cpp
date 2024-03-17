@@ -31,6 +31,7 @@ void ABGTaskPlayerController::SetupInputComponent()
 
 		//Steer
 		EnhancedInputComponent->BindAction(SteerAction, ETriggerEvent::Triggered, this, &ABGTaskPlayerController::OnSteerTriggered);
+		EnhancedInputComponent->BindAction(SteerAction, ETriggerEvent::Completed, this, &ABGTaskPlayerController::OnSteerReleased);
 
 		//Jumping
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABGTaskPlayerController::OnJumpTriggered);
@@ -109,4 +110,13 @@ void ABGTaskPlayerController::OnJumpTriggered()
 
 void ABGTaskPlayerController::OnJumpCanceled()
 {
+}
+
+void ABGTaskPlayerController::OnSteerReleased()
+{
+	ASkatePawn* SkatePawn = Cast<ASkatePawn>(GetPawn());
+	if (SkatePawn)
+	{
+		SkatePawn->StopSteer();
+	}
 }

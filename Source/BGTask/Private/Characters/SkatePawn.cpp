@@ -35,17 +35,39 @@ void ASkatePawn::Steer(const FInputActionValue& Value)
 	if (RootMesh)
 	{		
 
-		float YawRotation = Value.Get<float>() * SteerSpeed;
+		FVector Velocity = RootMesh->GetComponentVelocity();
+		float LinearVelocityXY = FVector(Velocity.X, Velocity.Y, 0).SizeSquared();
 
-		// Convert the rotation angle from degrees to radians
-		float YawRotationRadians = FMath::DegreesToRadians(YawRotation);
+		if (LinearVelocityXY < FMath::Square(1.0f))
+		{
+			// Actor is not moving, rotate adding local rotation
+			bTickRotate = true;
+			UE_LOG(LogTemp, Log, TEXT("Rotation using tick triggered"));
 
-		UE_LOG(LogTemp, Log, TEXT("Steer: YawRotation (%lf) Radians (%lf)"), YawRotation, YawRotationRadians);
+			if (Value.Get<float>() < 0)
+				DirectionMultiplier = -1.0f;
+			else
+				DirectionMultiplier = 1.0f;
 
-		// Apply the rotation to the RootMesh
-		RootMesh->AddTorqueInRadians(FVector(0.0f, 0.0f, YawRotationRadians), NAME_None, true);
+		}
+		else
+		{
+			float YawRotation = Value.Get<float>() * SteerSpeed;
 
+			// Convert the rotation angle from degrees to radians
+			float YawRotationRadians = FMath::DegreesToRadians(YawRotation);
+
+			UE_LOG(LogTemp, Log, TEXT("Steer: YawRotation (%lf) Radians (%lf)"), YawRotation, YawRotationRadians);
+
+			// Apply the rotation to the RootMesh
+			RootMesh->AddTorqueInRadians(FVector(0.0f, 0.0f, YawRotationRadians), NAME_None, true);
+		}
 	}
+}
+
+void ASkatePawn::StopSteer()
+{
+	bTickRotate = false;
 }
 
 void ASkatePawn::Jump()
@@ -98,6 +120,15 @@ void ASkatePawn::BeginPlay()
 void ASkatePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (bTickRotate)
+	{
+		// Calculate the rotation delta based on the rotation speed and delta time
+		FRotator RotationDelta = FRotator(0.0f, TickRotationSpeed * DeltaTime * DirectionMultiplier, 0.0f);
+
+		// Apply the rotation delta to the actor
+		AddActorWorldRotation(RotationDelta);
+	}
 
 }
 
