@@ -17,10 +17,35 @@ ASkatePawn::ASkatePawn()
 
 void ASkatePawn::Move(const FInputActionValue& Value)
 {
+	if (RootMesh && ShouldMove())
+	{
+
+		// Calculate the force to apply based on the input value
+		FVector ForceToAdd = GetActorForwardVector() * Value.Get<float>() * MoveSpeed;
+
+		UE_LOG(LogTemp, Log, TEXT("Move: Force (%s) Value (%lf)"), *ForceToAdd.ToString(), Value.Get<float>());
+
+		// Apply the force to the RootMesh
+		RootMesh->AddForce(ForceToAdd, NAME_None, true);
+	}
 }
 
 void ASkatePawn::Steer(const FInputActionValue& Value)
 {
+	if (RootMesh)
+	{		
+
+		float YawRotation = Value.Get<float>() * SteerSpeed;
+
+		// Convert the rotation angle from degrees to radians
+		float YawRotationRadians = FMath::DegreesToRadians(YawRotation);
+
+		UE_LOG(LogTemp, Log, TEXT("Steer: YawRotation (%lf) Radians (%lf)"), YawRotation, YawRotationRadians);
+
+		// Apply the rotation to the RootMesh
+		RootMesh->AddTorqueInRadians(FVector(0.0f, 0.0f, YawRotationRadians), NAME_None, true);
+
+	}
 }
 
 void ASkatePawn::Jump()
@@ -30,6 +55,37 @@ void ASkatePawn::Jump()
 void ASkatePawn::StopJumping()
 {
 }
+
+bool ASkatePawn::ShouldMove()
+{
+	if (RootMesh)
+	{		
+		FVector Velocity = RootMesh->GetComponentVelocity();
+		float LinearVelocityXY = FVector(Velocity.X, Velocity.Y, 0).Size();
+		return LinearVelocityXY <= MaxMoveSpeed;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool ASkatePawn::ShouldSteer()
+{
+	if (RootMesh)
+	{
+		FVector Velocity = RootMesh->GetComponentVelocity();
+
+		return true;
+		
+	}
+	else
+	{
+		return false;
+	}
+}
+
+
 
 // Called when the game starts or when spawned
 void ASkatePawn::BeginPlay()

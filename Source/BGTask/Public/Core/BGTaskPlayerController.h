@@ -12,7 +12,6 @@
 #include "GameFramework/ForceFeedbackEffect.h"
 
 #include "BGTaskHUD.h"
-#include "../Characters/BGTaskCharacter.h"
 
 #include "BGTaskPlayerController.generated.h"
 
@@ -49,6 +48,7 @@ protected:
 
 
 private:
+	bool EnableMappingContext(bool enable, UInputMappingContext* IMC);
 
 	void OnAccelerateTriggered(const FInputActionValue& Value);
 	void OnSteerTriggered(const FInputActionValue& Value);

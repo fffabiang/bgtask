@@ -17,6 +17,16 @@ public:
 	// Sets default values for this pawn's properties
 	ASkatePawn();
 
+	// Parameters
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float MoveSpeed = 100.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float MaxMoveSpeed = 800.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float SteerSpeed = 100.0f;
+
 	// Components
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
@@ -31,6 +41,10 @@ public:
 	void Jump();
 
 	void StopJumping();
+
+private:
+	bool ShouldMove();
+	bool ShouldSteer();
 
 
 
