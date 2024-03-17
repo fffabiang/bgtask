@@ -8,6 +8,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "SkatePawn.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicSkatePawnEvent);
+
+
 UCLASS()
 class BGTASK_API ASkatePawn : public APawn
 {
@@ -30,10 +34,25 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float TickRotationSpeed = 10.0f;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float JumpImpulseStrength = 200.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float GroundCheckDistance = 2.0f;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	TSubclassOf<AActor> DeadSkaterClass;
+
 	// Components
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UStaticMeshComponent* RootMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable)
+	FBasicSkatePawnEvent OnJumpTriggered;
+
+	UPROPERTY(VisibleAnywhere, BlueprintAssignable)
+	FBasicSkatePawnEvent OnFallTriggered;
 
 	// Functions
 
@@ -47,12 +66,25 @@ public:
 
 	void StopJumping();
 
+	UFUNCTION(BlueprintPure)
+	bool IsNearGround();
+
+	UFUNCTION(BlueprintPure)
+	bool ShouldMoveSkate();
+
+
+
 private:
-	bool ShouldMove();
-	bool ShouldSteer();
+	bool ShouldSteer();	
+
+	void CheckFallenOff();
+	void SpawnDeadSkater();
+	bool IsMeshInImpossibleOrientation();
 	
 	bool bTickRotate;
 	float DirectionMultiplier = 1.0f;
+
+	bool bPlayerFallen = false;
 
 
 protected:

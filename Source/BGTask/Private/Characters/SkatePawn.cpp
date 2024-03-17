@@ -17,28 +17,42 @@ ASkatePawn::ASkatePawn()
 
 void ASkatePawn::Move(const FInputActionValue& Value)
 {
-	if (RootMesh && ShouldMove())
+
+	if (bPlayerFallen)
+		return;
+
+	if (RootMesh)
 	{
-
-		// Calculate the force to apply based on the input value
-		FVector ForceToAdd = GetActorForwardVector() * Value.Get<float>() * MoveSpeed;
-
-		UE_LOG(LogTemp, Log, TEXT("Move: Force (%s) Value (%lf)"), *ForceToAdd.ToString(), Value.Get<float>());
-
-		// Apply the force to the RootMesh
-		RootMesh->AddForce(ForceToAdd, NAME_None, true);
+		// Move the skate while on the ground
+		if (ShouldMoveSkate())
+		{
+			// Calculate the force to apply based on the input value
+			FVector ForceToAdd = GetActorForwardVector() * Value.Get<float>() * MoveSpeed;
+			UE_LOG(LogTemp, Log, TEXT("Move: Force (%s) Value (%lf)"), *ForceToAdd.ToString(), Value.Get<float>());
+			RootMesh->AddForce(ForceToAdd, NAME_None, true);
+		}
+		// Rotate pitch while on air
+		else if (!IsNearGround())
+		{
+			UE_LOG(LogTemp, Log, TEXT("APPLYING PITCH ON AIR"));
+		}
+		
 	}
 }
 
 void ASkatePawn::Steer(const FInputActionValue& Value)
 {
+
+	if (bPlayerFallen)
+		return;
+
 	if (RootMesh)
 	{		
 
 		FVector Velocity = RootMesh->GetComponentVelocity();
 		float LinearVelocityXY = FVector(Velocity.X, Velocity.Y, 0).SizeSquared();
 
-		if (LinearVelocityXY < FMath::Square(1.0f))
+		if (FMath::IsNearlyZero(LinearVelocityXY, 1.0f))
 		{
 			// Actor is not moving, rotate adding local rotation
 			bTickRotate = true;
@@ -72,19 +86,53 @@ void ASkatePawn::StopSteer()
 
 void ASkatePawn::Jump()
 {
+
+	if (bPlayerFallen)
+		return;
+
+	if (IsNearGround())
+	{
+		// Broadcast Jump event
+		OnJumpTriggered.Broadcast();
+
+		// Apply an impulse to simulate jumping
+		FVector JumpImpulse = FVector(0.0f, 0.0f, JumpImpulseStrength);
+		RootMesh->AddImpulse(JumpImpulse, NAME_None, true);
+	}
 }
 
 void ASkatePawn::StopJumping()
 {
+
 }
 
-bool ASkatePawn::ShouldMove()
+bool ASkatePawn::IsNearGround()
+{
+
+	// Perform a raycast to check if the player is grounded
+	FHitResult HitResult;
+	FVector Start = GetActorLocation();
+	FVector End = Start - FVector(0.0f, 0.0f, GroundCheckDistance);
+
+	// Set up query parameters for the raycast
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	// Perform the raycast
+	bool bHitGround = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
+	//UE_LOG(LogTemp, Log, TEXT("Near Ground Check (%s)"), bHitGround? *FString("TRUE") : *FString("FALSE"));
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 2.0f);
+
+	return bHitGround;
+}
+
+bool ASkatePawn::ShouldMoveSkate()
 {
 	if (RootMesh)
 	{		
 		FVector Velocity = RootMesh->GetComponentVelocity();
 		float LinearVelocityXY = FVector(Velocity.X, Velocity.Y, 0).Size();
-		return LinearVelocityXY <= MaxMoveSpeed;
+		return LinearVelocityXY <= MaxMoveSpeed && IsNearGround();
 	}
 	else
 	{
@@ -105,6 +153,50 @@ bool ASkatePawn::ShouldSteer()
 	{
 		return false;
 	}
+}
+
+
+void ASkatePawn::CheckFallenOff()
+{
+	if (!bPlayerFallen)
+	{
+		// Check if the root mesh is in an unhandleable position
+		FVector MeshLocation = RootMesh->GetComponentLocation();
+		bool bIsFallenOff = IsMeshInImpossibleOrientation();
+
+		// If the mesh is in an unhandleable position, make it disappear
+		if (bIsFallenOff)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("PLAYER FALLEN OFF SKATE. DISABLING INPUT"));
+			SpawnDeadSkater();
+			OnFallTriggered.Broadcast();
+			bPlayerFallen = true;
+		}
+	}
+}
+
+// Spawn the dead skater actor at the specified location
+void ASkatePawn::SpawnDeadSkater()
+{
+	if (DeadSkaterClass)
+	{		
+		AActor* DeadSkaterActor = GetWorld()->SpawnActor<AActor>(DeadSkaterClass, GetActorLocation(), FRotator::ZeroRotator);
+	}
+}
+
+bool ASkatePawn::IsMeshInImpossibleOrientation()
+{
+	// Get the mesh's rotation
+	FRotator MeshRotation = RootMesh->GetComponentRotation();
+
+	// Check if the mesh is upside-down (rotated more than 90 degrees around the X-axis)
+	bool bIsUpsideDown = FMath::Abs(MeshRotation.Pitch) > 90.0f;
+
+	// Check if the mesh is tilted sideways (rotated more than 45 degrees around the Z-axis)
+	bool bIsTiltedSideways = FMath::Abs(MeshRotation.Roll) > 90.0f;
+
+	// Return true if the mesh is in an impossible orientation
+	return bIsUpsideDown || bIsTiltedSideways;
 }
 
 
@@ -129,6 +221,8 @@ void ASkatePawn::Tick(float DeltaTime)
 		// Apply the rotation delta to the actor
 		AddActorWorldRotation(RotationDelta);
 	}
+
+	CheckFallenOff();
 
 }
 

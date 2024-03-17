@@ -106,6 +106,11 @@ void ABGTaskPlayerController::OnSteerTriggered(const FInputActionValue& Value)
 
 void ABGTaskPlayerController::OnJumpTriggered()
 {
+	ASkatePawn* SkatePawn = Cast<ASkatePawn>(GetPawn());
+	if (SkatePawn)
+	{
+		SkatePawn->Jump();
+	}
 }
 
 void ABGTaskPlayerController::OnJumpCanceled()
