@@ -23,13 +23,13 @@ public:
 
 	// Parameters
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float MoveSpeed = 100.0f;
+	float MoveAcceleration = 600.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float MaxMoveSpeed = 800.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float SteerSpeed = 100.0f;
+	float SteerAcceleration = 100.0f;
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float TickRotationSpeed = 10.0f;
@@ -43,10 +43,25 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	TSubclassOf<AActor> DeadSkaterClass;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FVector DefaultBodyPosition;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FVector MovingBodyPosition;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FRotator MovingBodyRotation;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	FRotator DefaultBodyRotation;	
+
 	// Components
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UStaticMeshComponent* RootMesh;
+
+	UPROPERTY(BlueprintReadWrite, VisibleAnywhere)
+	USkeletalMeshComponent* BodyMesh;
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable)
 	FBasicSkatePawnEvent OnJumpTriggered;
@@ -70,9 +85,11 @@ public:
 	bool IsNearGround();
 
 	UFUNCTION(BlueprintPure)
-	bool ShouldMoveSkate();
+	bool IsMovingOnGround();
 
-
+	UFUNCTION(BlueprintPure)
+	bool AllowMoveInput();
+ 
 
 private:
 	bool ShouldSteer();	

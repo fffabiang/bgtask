@@ -24,10 +24,10 @@ void ASkatePawn::Move(const FInputActionValue& Value)
 	if (RootMesh)
 	{
 		// Move the skate while on the ground
-		if (ShouldMoveSkate())
+		if (AllowMoveInput())
 		{
 			// Calculate the force to apply based on the input value
-			FVector ForceToAdd = GetActorForwardVector() * Value.Get<float>() * MoveSpeed;
+			FVector ForceToAdd = GetActorForwardVector() * Value.Get<float>() * MoveAcceleration;
 			UE_LOG(LogTemp, Log, TEXT("Move: Force (%s) Value (%lf)"), *ForceToAdd.ToString(), Value.Get<float>());
 			RootMesh->AddForce(ForceToAdd, NAME_None, true);
 		}
@@ -66,7 +66,7 @@ void ASkatePawn::Steer(const FInputActionValue& Value)
 		}
 		else
 		{
-			float YawRotation = Value.Get<float>() * SteerSpeed;
+			float YawRotation = Value.Get<float>() * SteerAcceleration;
 
 			// Convert the rotation angle from degrees to radians
 			float YawRotationRadians = FMath::DegreesToRadians(YawRotation);
@@ -126,7 +126,7 @@ bool ASkatePawn::IsNearGround()
 	return bHitGround;
 }
 
-bool ASkatePawn::ShouldMoveSkate()
+bool ASkatePawn::AllowMoveInput()
 {
 	if (RootMesh)
 	{		
@@ -175,6 +175,15 @@ void ASkatePawn::CheckFallenOff()
 	}
 }
 
+bool ASkatePawn::IsMovingOnGround()
+{
+
+	FVector Velocity = RootMesh->GetComponentVelocity();
+	float LinearVelocityXY = FVector(Velocity.X, Velocity.Y, 0).Size();
+
+	return IsNearGround() && LinearVelocityXY >= 10;
+}
+
 // Spawn the dead skater actor at the specified location
 void ASkatePawn::SpawnDeadSkater()
 {
@@ -213,15 +222,21 @@ void ASkatePawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Perform rotation on tick only when player is still
 	if (bTickRotate)
 	{
-		// Calculate the rotation delta based on the rotation speed and delta time
 		FRotator RotationDelta = FRotator(0.0f, TickRotationSpeed * DeltaTime * DirectionMultiplier, 0.0f);
-
-		// Apply the rotation delta to the actor
 		AddActorWorldRotation(RotationDelta);
 	}
 
+	// Adjust character mesh position if the player is moving (this is because the asset has a different offset than the other animations)
+	if (BodyMesh)
+	{		
+		BodyMesh->SetRelativeLocation(IsMovingOnGround() ? MovingBodyPosition : DefaultBodyPosition);
+		BodyMesh->SetRelativeRotation(IsMovingOnGround() ? MovingBodyRotation : DefaultBodyRotation);
+	}
+
+	// Check if the player has fallen off skate
 	CheckFallenOff();
 
 }
