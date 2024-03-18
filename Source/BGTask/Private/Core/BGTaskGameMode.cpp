@@ -8,7 +8,8 @@
 
 ABGTaskGameMode::ABGTaskGameMode()
 {
-
+	ClockAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("ClockAudioComponent"));
+	ClockAudioComponent->SetupAttachment(RootComponent);  
 }
 
 void ABGTaskGameMode::PassObstacle(AObstacleActor* ObstaclePassed)
@@ -18,12 +19,15 @@ void ABGTaskGameMode::PassObstacle(AObstacleActor* ObstaclePassed)
 		PassedObstacles++;
 		PlayerScore += ObstaclePassed->Points;
 
+		UGameplayStatics::PlaySound2D(GetWorld(), ObstaclePassedSound);
+
 		if (PassedObstacles >= WinningObstacles)
 		{
 			if (bGameFinished)
 				return;
 
 			bGameFinished = true;
+			ClockAudioComponent->Stop();
 
 			GetWorld()->GetTimerManager().ClearTimer(GameTimerHandle);
 			ABGTaskPlayerController* PlayerController = Cast< ABGTaskPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
@@ -45,6 +49,9 @@ void ABGTaskGameMode::GameOver()
 
 	bGameFinished = true;
 
+	UGameplayStatics::PlaySound2D(GetWorld(), FailSound);
+	ClockAudioComponent->Stop();
+
 	GetWorld()->GetTimerManager().ClearTimer(GameTimerHandle);
 	PlayTime = 0.0f;
 
@@ -55,6 +62,7 @@ void ABGTaskGameMode::GameOver()
 		PlayerController->EnableGameOverMapping(true);
 	}
 
+
 	OnGameOverTriggered.Broadcast();
 
 }
@@ -62,6 +70,9 @@ void ABGTaskGameMode::GameOver()
 void ABGTaskGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	ClockAudioComponent->Play();
+	UGameplayStatics::PlaySound2D(GetWorld(), BGM_Sound);
 
 	GetWorld()->GetTimerManager().SetTimer(GameTimerHandle, [this]() {	
 		//UE_LOG(LogTemp, Log, TEXT("PlayTime (%f)"), PlayTime);

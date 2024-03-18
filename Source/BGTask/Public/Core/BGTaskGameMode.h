@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "ObstacleActor.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
+
 #include "BGTaskGameMode.generated.h"
 
 
@@ -37,12 +40,26 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int PlayerScore = 0;
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* FailSound;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* ClockSound;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* BGM_Sound;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* ObstaclePassedSound;
+
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
 	FBasicGameModeEvent OnGameOverTriggered;
 
 	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
 	FBasicGameModeEvent OnWinTriggered;
 
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
+	UAudioComponent* ClockAudioComponent;
 
 	// Functions
 

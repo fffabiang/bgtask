@@ -6,6 +6,9 @@
 #include "GameFramework/Pawn.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Components/AudioComponent.h"
+#include "Sound/SoundBase.h"
+
 #include "SkatePawn.generated.h"
 
 
@@ -36,7 +39,7 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float JumpImpulseStrength = 200.0f;
-
+	
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	float GroundCheckDistance = 2.0f;
 
@@ -55,6 +58,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 	FRotator DefaultBodyRotation;	
 
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* SkateMovingSound;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	USoundBase* SkateCrashSound;
+
 	// Components
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
@@ -68,6 +77,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintAssignable)
 	FBasicSkatePawnEvent OnFallTriggered;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UAudioComponent* SkateAudioComponent;
 
 	// Functions
 
@@ -89,6 +101,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool AllowMoveInput();
+
+	UFUNCTION(BlueprintPure)
+	bool IsOnRamp();
  
 
 private:

@@ -13,7 +13,9 @@ ASkatePawn::ASkatePawn()
 
 	RootMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RootMesh"));
 	SetRootComponent(RootMesh);
-
+	
+	SkateAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("SkateAudioComponent"));
+	SkateAudioComponent->SetupAttachment(RootComponent);
 
 }
 
@@ -32,6 +34,15 @@ void ASkatePawn::Move(const FInputActionValue& Value)
 			FVector ForceToAdd = GetActorForwardVector() * Value.Get<float>() * MoveAcceleration;
 			UE_LOG(LogTemp, Log, TEXT("Move: Force (%s) Value (%lf)"), *ForceToAdd.ToString(), Value.Get<float>());
 			RootMesh->AddForce(ForceToAdd, NAME_None, true);
+
+			// If no moving skate sound, play
+			if (!SkateAudioComponent->IsPlaying())
+			{
+				SkateAudioComponent->SetSound(SkateMovingSound);
+				SkateAudioComponent->Play();
+			}
+
+
 		}
 		// Rotate pitch while on air
 		else if (!IsNearGround())
@@ -170,7 +181,6 @@ void ASkatePawn::CheckFallenOff()
 	if (!bPlayerFallen)
 	{
 		// Check if the root mesh is in an unhandleable position
-		FVector MeshLocation = RootMesh->GetComponentLocation();
 		bool bIsFallenOff = IsMeshInImpossibleOrientation();
 
 		// If the mesh is in an unhandleable position, make it disappear
@@ -179,6 +189,10 @@ void ASkatePawn::CheckFallenOff()
 			SpawnDeadSkater();
 			OnFallTriggered.Broadcast();
 			bPlayerFallen = true;
+
+			SkateAudioComponent->Stop();
+			SkateAudioComponent->SetSound(SkateCrashSound);
+			SkateAudioComponent->Play();
 
 			ABGTaskGameMode* GameMode = GetWorld()->GetAuthGameMode<ABGTaskGameMode>();
 			if (GameMode)
@@ -211,7 +225,7 @@ void ASkatePawn::SpawnDeadSkater()
 bool ASkatePawn::IsMeshInImpossibleOrientation()
 {
 	FRotator MeshRotation = RootMesh->GetComponentRotation();
-	bool bIsUpsideDown = FMath::Abs(MeshRotation.Pitch) > 90.0f;
+	bool bIsUpsideDown = FMath::Abs(MeshRotation.Pitch) > 70.0f;
 	bool bIsTiltedSideways = FMath::Abs(MeshRotation.Roll) > 90.0f;
 
 	return bIsUpsideDown || bIsTiltedSideways;
@@ -223,7 +237,6 @@ bool ASkatePawn::IsMeshInImpossibleOrientation()
 void ASkatePawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -245,6 +258,9 @@ void ASkatePawn::Tick(float DeltaTime)
 		BodyMesh->SetRelativeRotation(IsMovingOnGround() ? MovingBodyRotation : DefaultBodyRotation);
 	}
 
+	// Check if player is on ramp
+	//IsOnRamp();
+
 	// Check if the player has fallen off skate
 	CheckFallenOff();
 
@@ -256,4 +272,29 @@ void ASkatePawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+bool ASkatePawn::IsOnRamp()
+{
+
+	// Assuming you have access to collision detection
+	FHitResult HitResult;
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, this->GetActorLocation(), this->GetActorLocation() - FVector::UpVector * 20.0f, ECC_WorldStatic))
+	{
+		// Calculate the angle between the surface normal and the up vector
+		FVector SurfaceNormal = HitResult.Normal;
+		float SurfaceAngle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SurfaceNormal, FVector::UpVector)));
+
+		UE_LOG(LogTemp, Log, TEXT("Surface Angle (%lf)"), SurfaceAngle);
+		// Assuming ThresholdAngle is predefined
+		if (SurfaceAngle > 20.0f)
+		{
+			// Player is on a ramp, increase torque rotation multiplier
+			//TorqueRotationMultiplier *= RampTorqueMultiplierFactor;
+			UE_LOG(LogTemp, Error, TEXT("ON A RAMP!!!"));
+		}
+	}
+
+	return true; // Change this later
+}
+
 
