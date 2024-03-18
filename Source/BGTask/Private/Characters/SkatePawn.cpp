@@ -56,7 +56,7 @@ void ASkatePawn::Steer(const FInputActionValue& Value)
 
 		if (FMath::IsNearlyZero(LinearVelocityXY, 1.0f))
 		{
-			// Actor is not moving, rotate adding local rotation
+			//// Actor is not moving, rotate adding local rotation
 			bTickRotate = true;
 			UE_LOG(LogTemp, Log, TEXT("Rotation using tick triggered"));
 
@@ -64,6 +64,17 @@ void ASkatePawn::Steer(const FInputActionValue& Value)
 				DirectionMultiplier = -1.0f;
 			else
 				DirectionMultiplier = 1.0f;
+
+			//FRotator CurrentRotation = GetActorRotation();
+
+			//// Calculate the desired rotation change based on the input value
+			//float YawRotation = Value.Get<float>() * SteerAcceleration * 10;
+
+			//// Add the rotation to the current yaw value
+			//float NewYaw = CurrentRotation.Yaw + YawRotation;
+
+			//// Set the new rotation with only the yaw changed
+			//SetActorRotation(FRotator(0.0f, NewYaw, 0.0f));
 
 		}
 		else
