@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "ObstacleActor.h"
 #include "BGTaskGameMode.generated.h"
 
 UCLASS(minimalapi)
@@ -13,6 +14,30 @@ class ABGTaskGameMode : public AGameModeBase
 
 public:
 	ABGTaskGameMode();
+
+	// Properties
+
+	// Number of obstacles for the player to win the game
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	int WinningObstacles = 10;
+
+	// Time in seconds that the player can play
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
+	float PlayTime = 60;
+
+	// Keeping track of obstacles passed by the player
+	UPROPERTY(BlueprintReadOnly)
+	int PassedObstacles = 0;
+
+	// Player score after passing all obstacles
+	UPROPERTY(BlueprintReadOnly)
+	int PlayerScore = 0;
+
+	// Functions
+
+	void PassObstacle(AObstacleActor* ObstaclePassed);
+
+
 
 };
 

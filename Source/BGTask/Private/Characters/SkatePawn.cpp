@@ -111,7 +111,7 @@ bool ASkatePawn::IsNearGround()
 
 	// Perform a raycast to check if the player is grounded
 	FHitResult HitResult;
-	FVector Start = GetActorLocation();
+	FVector Start = GetActorLocation() + FVector(0.0f,0.0f,5.0f);
 	FVector End = Start - FVector(0.0f, 0.0f, GroundCheckDistance);
 
 	// Set up query parameters for the raycast
@@ -121,7 +121,7 @@ bool ASkatePawn::IsNearGround()
 	// Perform the raycast
 	bool bHitGround = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
 	//UE_LOG(LogTemp, Log, TEXT("Near Ground Check (%s)"), bHitGround? *FString("TRUE") : *FString("FALSE"));
-	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 2.0f);
+	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 2.0f);
 
 	return bHitGround;
 }
