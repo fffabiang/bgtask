@@ -18,6 +18,7 @@ void ABGTaskGameMode::PassObstacle(AObstacleActor* ObstaclePassed)
 	{
 		PassedObstacles++;
 		PlayerScore += ObstaclePassed->Points;
+		PlayTime += ObstaclePassed->Points;
 
 		UGameplayStatics::PlaySound2D(GetWorld(), ObstaclePassedSound);
 
@@ -70,6 +71,8 @@ void ABGTaskGameMode::GameOver()
 void ABGTaskGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	WinningObstacles = FMath::RandRange(8, 12);
 
 	ClockAudioComponent->Play();
 	UGameplayStatics::PlaySound2D(GetWorld(), BGM_Sound);

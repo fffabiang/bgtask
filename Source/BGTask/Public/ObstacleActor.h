@@ -21,7 +21,7 @@ public:
 
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacle")
-	int Points;
+	int Points = 2;
 
 	// Components
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacle")

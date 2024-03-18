@@ -28,8 +28,6 @@ AObstacleActor::AObstacleActor()
         ObstacleMesh->SetOverlayMaterial(HighlightMaterial);
     }
 
-    // Set default points
-    Points = 0;
 
 }
 
