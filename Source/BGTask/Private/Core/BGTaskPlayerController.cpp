@@ -4,7 +4,18 @@
 #include "Core/BGTaskPlayerController.h"
 
 #include "Characters/SkatePawn.h"
+#include "Kismet/GameplayStatics.h"
 
+
+void ABGTaskPlayerController::EnableSkateMapping(bool enable)
+{
+	EnableMappingContext(enable, SkateMappingContext);
+}
+
+void ABGTaskPlayerController::EnableGameOverMapping(bool enable)
+{
+	EnableMappingContext(enable, GameOverMappingContext);
+}
 
 void ABGTaskPlayerController::PostInitializeComponents()
 {
@@ -37,6 +48,8 @@ void ABGTaskPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ABGTaskPlayerController::OnJumpTriggered);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ABGTaskPlayerController::OnJumpCanceled);
 
+		// Game Over mapping
+		EnhancedInputComponent->BindAction(RestartLevelAction, ETriggerEvent::Triggered, this, &ABGTaskPlayerController::OnRestartLevelTriggered);		
 
 	}
 }
@@ -124,4 +137,10 @@ void ABGTaskPlayerController::OnSteerReleased()
 	{
 		SkatePawn->StopSteer();
 	}
+}
+
+void ABGTaskPlayerController::OnRestartLevelTriggered()
+{
+	FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(GetWorld(), true);
+	UGameplayStatics::OpenLevel(GetWorld(), FName(*CurrentLevelName));
 }

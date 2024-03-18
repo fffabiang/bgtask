@@ -7,6 +7,10 @@
 #include "ObstacleActor.h"
 #include "BGTaskGameMode.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBasicGameModeEvent);
+
+
 UCLASS(minimalapi)
 class ABGTaskGameMode : public AGameModeBase
 {
@@ -23,7 +27,7 @@ public:
 
 	// Time in seconds that the player can play
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
-	float PlayTime = 60;
+	float PlayTime = 60.0f;
 
 	// Keeping track of obstacles passed by the player
 	UPROPERTY(BlueprintReadOnly)
@@ -33,9 +37,28 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	int PlayerScore = 0;
 
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
+	FBasicGameModeEvent OnGameOverTriggered;
+
+	UPROPERTY(BlueprintAssignable, VisibleAnywhere)
+	FBasicGameModeEvent OnWinTriggered;
+
+
 	// Functions
 
 	void PassObstacle(AObstacleActor* ObstaclePassed);
+
+	void GameOver();
+
+
+protected:
+
+	void BeginPlay() override;
+
+	FTimerHandle GameTimerHandle;
+
+
+
 
 
 

@@ -30,15 +30,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputMappingContext* SkateMappingContext;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Gameplay", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputMappingContext* GameOverMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* AccelerateAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Gameplay", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SteerAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input | Gameplay", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RestartLevelAction;
+
+
+	// Functions
+
+	void EnableSkateMapping(bool enable);
+	void EnableGameOverMapping(bool enable);
 
 protected:
 
@@ -56,6 +67,8 @@ private:
 	void OnJumpCanceled();
 
 	void OnSteerReleased();
+
+	void OnRestartLevelTriggered();
 
 	
 };

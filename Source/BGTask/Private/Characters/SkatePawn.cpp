@@ -2,6 +2,8 @@
 
 
 #include "Characters/SkatePawn.h"
+#include "Core/BGTaskGameMode.h"
+
 
 // Sets default values
 ASkatePawn::ASkatePawn()
@@ -167,10 +169,15 @@ void ASkatePawn::CheckFallenOff()
 		// If the mesh is in an unhandleable position, make it disappear
 		if (bIsFallenOff)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("PLAYER FALLEN OFF SKATE. DISABLING INPUT"));
 			SpawnDeadSkater();
 			OnFallTriggered.Broadcast();
 			bPlayerFallen = true;
+
+			ABGTaskGameMode* GameMode = GetWorld()->GetAuthGameMode<ABGTaskGameMode>();
+			if (GameMode)
+			{
+				GameMode->GameOver();
+			}
 		}
 	}
 }
