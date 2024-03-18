@@ -57,7 +57,9 @@ protected:
 
 	FTimerHandle GameTimerHandle;
 
+private:
 
+	bool bGameFinished = false;
 
 
 

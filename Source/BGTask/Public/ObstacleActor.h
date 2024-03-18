@@ -30,6 +30,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacle")
 	UStaticMeshComponent* ObstacleMesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacle")
+	UMaterial* HighlightMaterial;
 
 private:
 	UFUNCTION()

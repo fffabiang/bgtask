@@ -20,6 +20,11 @@ void ABGTaskGameMode::PassObstacle(AObstacleActor* ObstaclePassed)
 
 		if (PassedObstacles >= WinningObstacles)
 		{
+			if (bGameFinished)
+				return;
+
+			bGameFinished = true;
+
 			GetWorld()->GetTimerManager().ClearTimer(GameTimerHandle);
 			ABGTaskPlayerController* PlayerController = Cast< ABGTaskPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 			if (PlayerController)
@@ -34,6 +39,12 @@ void ABGTaskGameMode::PassObstacle(AObstacleActor* ObstaclePassed)
 
 void ABGTaskGameMode::GameOver()
 {
+
+	if (bGameFinished)
+		return;
+
+	bGameFinished = true;
+
 	GetWorld()->GetTimerManager().ClearTimer(GameTimerHandle);
 	PlayTime = 0.0f;
 

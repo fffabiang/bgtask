@@ -22,6 +22,12 @@ AObstacleActor::AObstacleActor()
     PassTrigger->SetupAttachment(RootComponent);
     PassTrigger->OnComponentEndOverlap.AddDynamic(this, &AObstacleActor::OnPassTriggerEndOverlap);
 
+    // Add overlay material to mesh
+    if (HighlightMaterial)
+    {
+        ObstacleMesh->SetOverlayMaterial(HighlightMaterial);
+    }
+
     // Set default points
     Points = 0;
 
@@ -41,6 +47,7 @@ void AObstacleActor::OnPassTriggerEndOverlap(UPrimitiveComponent* OverlappedComp
         {
             bPassed = true;
             GameMode->PassObstacle(this);
+            ObstacleMesh->SetOverlayMaterial(nullptr);
         }
     }
 }
@@ -49,6 +56,12 @@ void AObstacleActor::OnPassTriggerEndOverlap(UPrimitiveComponent* OverlappedComp
 void AObstacleActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+    if (HighlightMaterial)
+    {
+        ObstacleMesh->SetOverlayMaterial(HighlightMaterial);
+    }
+
 	
 }
 

@@ -108,22 +108,18 @@ void ASkatePawn::StopJumping()
 
 }
 
+// Perform a raycast to check if the player is grounded
 bool ASkatePawn::IsNearGround()
 {
-
-	// Perform a raycast to check if the player is grounded
 	FHitResult HitResult;
 	FVector Start = GetActorLocation() + FVector(0.0f,0.0f,5.0f);
 	FVector End = Start - FVector(0.0f, 0.0f, GroundCheckDistance);
-
-	// Set up query parameters for the raycast
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
 	// Perform the raycast
 	bool bHitGround = GetWorld()->LineTraceSingleByChannel(HitResult, Start, End, ECC_Visibility, QueryParams);
-	//UE_LOG(LogTemp, Log, TEXT("Near Ground Check (%s)"), bHitGround? *FString("TRUE") : *FString("FALSE"));
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 2.0f);
+	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 2.0f, 0, 2.0f);
 
 	return bHitGround;
 }
@@ -184,7 +180,6 @@ void ASkatePawn::CheckFallenOff()
 
 bool ASkatePawn::IsMovingOnGround()
 {
-
 	FVector Velocity = RootMesh->GetComponentVelocity();
 	float LinearVelocityXY = FVector(Velocity.X, Velocity.Y, 0).Size();
 
@@ -200,18 +195,14 @@ void ASkatePawn::SpawnDeadSkater()
 	}
 }
 
+// Return true if the mesh is in an impossible orientation
+
 bool ASkatePawn::IsMeshInImpossibleOrientation()
 {
-	// Get the mesh's rotation
 	FRotator MeshRotation = RootMesh->GetComponentRotation();
-
-	// Check if the mesh is upside-down (rotated more than 90 degrees around the X-axis)
 	bool bIsUpsideDown = FMath::Abs(MeshRotation.Pitch) > 90.0f;
-
-	// Check if the mesh is tilted sideways (rotated more than 45 degrees around the Z-axis)
 	bool bIsTiltedSideways = FMath::Abs(MeshRotation.Roll) > 90.0f;
 
-	// Return true if the mesh is in an impossible orientation
 	return bIsUpsideDown || bIsTiltedSideways;
 }
 
